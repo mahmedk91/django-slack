@@ -60,6 +60,10 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
             'render': False,
             'required': NOT_REQUIRED,
         },
+        'user': {
+            'default': '',
+            'required': NOT_REQUIRED,
+        },
     }
 
     for k, v in PARAMS.items():
@@ -123,8 +127,6 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
 
         if 'attachments' in data:
             data['attachments'] = json.dumps(data['attachments'])
-    else:
-        data = {'payload': json.dumps(data)}
 
     try:
         return backend.send(endpoint_url, data, **kwargs)
