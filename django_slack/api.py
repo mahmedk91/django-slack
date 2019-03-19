@@ -8,7 +8,7 @@ from .utils import get_backend
 from .app_settings import app_settings
 
 
-def slack_message(template, context=None, attachments=None, fail_silently=None, **kwargs):
+def slack_message(template, context=None, groups=None, attachments=None, fail_silently=None, **kwargs):
     data = {}
 
     channel = kwargs.pop('channel', app_settings.CHANNEL)
@@ -47,6 +47,11 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
         },
         'attachments': {
             'default': attachments,
+            'render': False,
+            'required': NOT_REQUIRED,
+        },
+        'groups': {
+            'default': groups,
             'render': False,
             'required': NOT_REQUIRED,
         },
@@ -98,11 +103,6 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
                 "Missing or empty required parameter: {}".format(k)
             )
 
-    if 'text' not in data and 'attachments' not in data:
-        raise ValueError(
-            "text parameter is required if attachments is not set",
-        )
-
     # The endpoint URL is not part of the data payload but as we construct it
     # within `data` we must remove it.
     endpoint_url = data.pop('endpoint_url')
@@ -128,6 +128,8 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
         if 'attachments' in data:
             data['attachments'] = json.dumps(data['attachments'])
 
+    if 'groups' in data:
+        data['groups'] = json.dumps(data['groups'])
     try:
         return backend.send(endpoint_url, data, **kwargs)
     except Exception:
