@@ -8,7 +8,7 @@ from .utils import get_backend
 from .app_settings import app_settings
 
 
-def slack_message(template, context=None, groups=None, attachments=None, fail_silently=None, **kwargs):
+def slack_message(template, context=None, blocks=None, attachments=None, fail_silently=None, **kwargs):
     data = {}
 
     channel = kwargs.pop('channel', app_settings.CHANNEL)
@@ -50,8 +50,8 @@ def slack_message(template, context=None, groups=None, attachments=None, fail_si
             'render': False,
             'required': NOT_REQUIRED,
         },
-        'groups': {
-            'default': groups,
+        'blocks': {
+            'default': blocks,
             'render': False,
             'required': NOT_REQUIRED,
         },
@@ -128,8 +128,8 @@ def slack_message(template, context=None, groups=None, attachments=None, fail_si
         if 'attachments' in data:
             data['attachments'] = json.dumps(data['attachments'])
 
-    if 'groups' in data:
-        data['groups'] = json.dumps(data['groups'])
+    if 'blocks' in data:
+        data['blocks'] = json.dumps(data['blocks'])
     try:
         return backend.send(endpoint_url, data, **kwargs)
     except Exception:
